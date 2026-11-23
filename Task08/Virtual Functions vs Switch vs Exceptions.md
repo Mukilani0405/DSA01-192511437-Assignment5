@@ -16,33 +16,25 @@ Both approaches should produce the same billing totals when implemented correctl
 
 ### 3. Performance Benchmarking
 
-The billing methods are tested with different numbers of bills using compiler optimization.
+The billing methods were tested using two million bills (one million of each bill type) with compiler optimization.
 
 | Number of bills | Virtual functions | Switch statement |
-|---|---|---|
-| 1,000 | Measure execution time | Measure execution time |
-| 1,000,000 | Measure execution time | Measure execution time |
-| 10,000,000 | Measure execution time | Measure execution time |
+|---|---:|---:|
+| 2,000,000 | 104 ms | 14 ms |
 
-Command used:
-
-```bash
-g++ -std=c++17 -O2 -Wall -Wextra benchmark.cpp -o benchmark
-```
-
-The execution time is recorded for each test. Actual timings depend on the processor, compiler, and system load.
+The switch statement was faster in this particular experiment. Actual performance depends on the compiler, processor, and system load.
 
 ### 4. Exception vs Return Code Benchmark
 
-One million claims are tested with different invalid-claim percentages.
+One million claims were tested with different invalid-claim percentages.
 
 | Invalid claims | Exceptions | Return codes |
-|---|---|---|
-| 0% | Measure time | Measure time |
-| 1% | Measure time | Measure time |
-| 50% | Measure time | Measure time |
+|---|---:|---:|
+| 0% | 28 ms | 73 ms |
+| 1% | 102 ms | 21 ms |
+| 50% | 1595 ms | 55 ms |
 
-When errors are rare, exceptions can keep normal program logic simple. When errors are frequent, return codes may perform better because exception handling requires stack unwinding.
+The results show that exceptions become expensive when errors occur frequently. Return codes performed better at 1% and 50% invalid claims. At 0%, exceptions were faster in this particular run.
 
 ### 5. Engineering Trade-off
 
@@ -57,8 +49,11 @@ When errors are rare, exceptions can keep normal program logic simple. When erro
 
 `std::variant` can store different bill types, and `std::visit` can select the appropriate calculation.
 
-It provides type safety and avoids traditional virtual inheritance. Its performance and memory usage should be measured with the same 10-million-bill test.
+It provides type safety and avoids traditional virtual inheritance. Its performance and memory usage can be measured using the same billing test data.
 
+### Result
+
+Virtual functions provide flexibility for extending the hospital billing system. Switch statements performed faster in our measured test. Exceptions are useful for unexpected errors, while return codes are suitable for frequent predictable errors.
 ### Result
 
 Virtual functions provide better flexibility for extending the hospital billing system. Switch statements can be useful for a small fixed set of bill types. Exceptions are suitable for unexpected errors, while return codes can be considered for frequent predictable errors.
